@@ -28,6 +28,24 @@ try:
 finally:
     print("Date: " + d)
 
+###Login into yahoo account
+def login(email, password):
+    # enter username
+    driver.find_element_by_name("username").send_keys(email)
+    time.sleep(5)
+
+    #click next button
+    driver.find_element_by_name("signin").click()
+    time.sleep(5)
+
+    #enetr password
+    driver.find_element_by_name("password").send_keys(password)
+    time.sleep(5)
+
+    #click login
+    driver.find_element_by_name("verifyPassword").click()
+    time.sleep(5)
+
 ### sending mail to specific person
 def sendMail(email, subject, msgBody):
     #composing email
@@ -51,32 +69,15 @@ def sendMail(email, subject, msgBody):
     driver.find_element_by_css_selector("#mail-app-component > div.p_a.R_0.T_0.L_0.B_0.D_F > div > div.em_N.D_F.ek_BB.p_R.o_h > div:nth-child(2) > div > button").click()
 
 
-### user's email & password to login
-email = "yourEmailAddress@example.com"
-password = "yourPassword"
-
 #opening browser
 driver = webdriver.Chrome()
 driver.get("https://mail.yahoo.com/")
 assert "Yahoo" in driver.title
 time.sleep(5)
 
-### logging into yahoo mail
-# enter username
-driver.find_element_by_name("username").send_keys(email)
-time.sleep(5)
-
-#click next button
-driver.find_element_by_name("signin").click()
-time.sleep(5)
-
-#enetr password
-driver.find_element_by_name("password").send_keys(password)
-time.sleep(5)
-
-#click login
-driver.find_element_by_name("verifyPassword").click()
-time.sleep(5)
+### user's email & password to login
+userEmail = "yourEmailAddress@example.com"
+userPassword = "yourPassword"
 
 ##important declarations
 #person : details about receiver
@@ -102,6 +103,14 @@ emailBody = {
     "marriageday": "Happy Marriage Day"
 }
 
+### logging into yahoo mail
+try:
+    login(userEmail, userPassword)
+except:
+    print("Can't login.")
+    driver.close()
+    sys.exit(0)
+
 ###checking date for sending emails
 toDay = datetime.date.today().day
 toMonth = datetime.date.today().month
@@ -114,10 +123,14 @@ for person in persons:
             day = int(day)
             month = int(month)
             if (toDay == day and toMonth == month): #checking date
-                sendMail(email, emailSubject[item], emailBody[item]) #sending mail
-                print("Email has sent to " + email + " at his/her " + item);
-                time.sleep(20)
-
+                try:
+                    sendMail(email, emailSubject[item], emailBody[item]) #sending mail
+                    print("Email has sent to " + email + " at his/her " + item);
+                    time.sleep(20)
+                except:
+                    print("Can't send emails.")
+                    driver.close()
+                    sys.exit(0);
 
 time.sleep(20)
 
