@@ -1,3 +1,4 @@
+import sys
 import time
 import datetime
 from selenium import webdriver
@@ -6,6 +7,23 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+
+# checking if already emails are sent or not
+d = str(datetime.date.today()) + "\n"
+try:
+    fp = open("files.log", "r")
+    txt = fp.read()
+    if d == txt:
+        print("Already sent emails today.\n")
+        sys.exit(0)
+except IOError:
+    print("Can't open file")
+
+try:
+    fp = open("files.log", "w")
+    fp.write(d)
+finally:
+    print("Date: " + d)
 
 ###sending mail to specific person
 def sendMail(email, subject, msgBody):
@@ -32,14 +50,16 @@ def sendMail(email, subject, msgBody):
 
 #opening browser
 driver = webdriver.Chrome()
-driver.get("http://www.gmail.com/")
+driver.get(
+    "https://accounts.google.com/AccountChooser?service=mail&amp;continue=https://mail.google.com/mail/"
+)
 assert "Gmail" in driver.title
 time.sleep(5)
 
 ##login to email
 #login details
-userEmail = "someone@example.com"
-userPwd = "password"
+userEmail = "yourEmailAddress@example.com" #user's email
+userPwd = "yourPassword"         #user's password
 
 #entering email address
 driver.find_element_by_name("identifier").send_keys(userEmail)
@@ -49,17 +69,17 @@ time.sleep(5)
 #entering password
 driver.find_element_by_name("password").send_keys(userPwd)
 driver.find_element_by_id("passwordNext").click()
-time.sleep(30)
+time.sleep(20)
 
 ##important declarations
 persons = [{
     "email": "asad.cse@yahoo.com",
     "birthday": "1996-05-17",
-    "marriageday": "2022-03-21"
+    "marriageday": "2022-08-07"
 }, {
     "email": "asad.cse.ru.15@gmail.com",
-    "birthday": "1996-03-13",
-    "marriageday": "2022-05-17"
+    "birthday": "1996-08-07",
+    "marriageday": "2022-07-09"
 }]
 
 emailSubject = {
@@ -85,10 +105,11 @@ for person in persons:
             month = int(month)
             if (toDay == day and toMonth == month): #checking date
                 sendMail(email, emailSubject[item], emailBody[item]) #sending mail
+                #driver.find_element_by_css_selector(".aic .z0 div")
                 print("Email has sent to " + email + " at his/her " + item);
                 time.sleep(20)
 
 
-time.sleep(100)
+time.sleep(20)
 
 driver.close()
