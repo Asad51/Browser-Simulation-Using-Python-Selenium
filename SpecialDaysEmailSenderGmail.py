@@ -1,3 +1,6 @@
+#Group : Group1
+#Target : Automatically sending emails to specific email address on special days
+
 import sys
 import time
 import datetime
@@ -24,6 +27,18 @@ try:
     fp.write(d)
 finally:
     print("Date: " + d)
+
+### login into google account
+def login(email, password):
+    #entering email address
+    driver.find_element_by_name("identifier").send_keys(email)
+    driver.find_element_by_id("identifierNext").click()
+    time.sleep(5)
+
+    #entering password
+    driver.find_element_by_name("password").send_keys(password)
+    driver.find_element_by_id("passwordNext").click()
+    time.sleep(20)
 
 ###sending mail to specific person
 def sendMail(email, subject, msgBody):
@@ -56,22 +71,12 @@ driver.get(
 assert "Gmail" in driver.title
 time.sleep(5)
 
-##login to email
+##important declarations
+
 #login details
 userEmail = "yourEmailAddress@example.com" #user's email
 userPwd = "yourPassword"         #user's password
 
-#entering email address
-driver.find_element_by_name("identifier").send_keys(userEmail)
-driver.find_element_by_id("identifierNext").click()
-time.sleep(5)
-
-#entering password
-driver.find_element_by_name("password").send_keys(userPwd)
-driver.find_element_by_id("passwordNext").click()
-time.sleep(20)
-
-##important declarations
 persons = [{
     "email": "asad.cse@yahoo.com",
     "birthday": "1996-05-17",
@@ -92,6 +97,14 @@ emailBody = {
     "marriageday": "Happy Marriage Day"
 }
 
+##login to email
+try:
+    login(userEmail, userPwd)
+except:
+    print("Can't login.")
+    driver.close()
+    sys.exit(0)
+
 ###checking date for sending emails
 toDay = datetime.date.today().day
 toMonth = datetime.date.today().month
@@ -104,10 +117,15 @@ for person in persons:
             day = int(day)
             month = int(month)
             if (toDay == day and toMonth == month): #checking date
-                sendMail(email, emailSubject[item], emailBody[item]) #sending mail
-                #driver.find_element_by_css_selector(".aic .z0 div")
-                print("Email has sent to " + email + " at his/her " + item);
-                time.sleep(20)
+                try:
+                    sendMail(email, emailSubject[item], emailBody[item]) #sending mail
+                    #driver.find_element_by_css_selector(".aic .z0 div")
+                    print("Email has sent to " + email + " at his/her " + item);
+                    time.sleep(20)
+                except:
+                    print("Can't send emails.")
+                    driver.close()
+                    sys.exit(0)
 
 
 time.sleep(20)
